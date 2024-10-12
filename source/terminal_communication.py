@@ -1,4 +1,5 @@
 from talon import Module, Context, actions
+from typing import Any
 
 module = Module()
 @module.action_class
@@ -19,9 +20,13 @@ class Actions:
         actions.user.terminal_chicken_focus_vscode()
     
     def terminal_chicken_send_command_on_current_line_to_terminal(terminal_name: str):
-        """Sends the text on the current line to the specified terminal program and advances to the next line"""
+        """Sends the text on the current line to the specified terminal program"""
         actions.edit.line_start()
         actions.edit.extend_line_end()
         text = actions.edit.selected_text()
         actions.user.terminal_chicken_send_command_to_terminal(text, terminal_name)
-        actions.edit.line_insert_down()
+
+    def terminal_chicken_send_command_on_line_with_cursorless_target_to_terminal(target: Any, terminal_name: str):
+        """Sends the text on the line with the specified cursorless target with the specified terminal program"""
+        actions.user.cursorless_command("setSelection", target)
+        actions.user.terminal_chicken_send_command_on_current_line_to_terminal(terminal_name)
