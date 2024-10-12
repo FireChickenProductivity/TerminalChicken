@@ -17,3 +17,11 @@ class Actions:
         actions.insert(command)
         actions.key('enter')
         actions.user.terminal_chicken_focus_vscode()
+    
+    def terminal_chicken_send_command_on_current_line_to_terminal(terminal_name: str):
+        """Sends the text on the current line to the specified terminal program and advances to the next line"""
+        actions.edit.line_start()
+        actions.edit.extend_line_end()
+        text = actions.edit.selected_text()
+        actions.user.terminal_chicken_send_command_to_terminal(text, terminal_name)
+        actions.edit.line_insert_down()
