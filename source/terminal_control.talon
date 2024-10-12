@@ -1,0 +1,1 @@
+#testing: user.terminal_chicken_send_command_to_terminal("ls", "Terminal")
