@@ -30,3 +30,15 @@ class Actions:
         """Sends the text on the line with the specified cursorless target with the specified terminal program"""
         actions.user.cursorless_command("setSelection", target)
         actions.user.terminal_chicken_send_command_on_current_line_to_terminal(terminal_name)
+
+    def terminal_chicken_obtain_terminal_text_after_completion(terminal_name: str, text_to_complete: str):
+        """Gets the text in the terminal with specified name"""
+        actions.user.terminal_chicken_focus_terminal(terminal_name)
+        actions.insert(text_to_complete)
+        actions.key('tab')
+        actions.edit.select_all()
+        text = actions.edit.selected_text()
+        actions.edit.right()
+        actions.key('ctrl-c')
+        actions.user.terminal_chicken_focus_vscode()
+        return text
