@@ -37,8 +37,29 @@ class Actions:
         actions.insert(text_to_complete)
         actions.key('tab')
         actions.edit.select_all()
+        actions.sleep(0.5)
         text = actions.edit.selected_text()
         actions.edit.right()
         actions.key('ctrl-c')
         actions.user.terminal_chicken_focus_vscode()
         return text
+
+    def terminal_chicken_compute_completion_text(line_start: str, terminal_text: str):
+        """Computes the completion text given the line start and the terminal text"""
+        start_index = terminal_text.rfind(line_start)
+        if start_index == -1:
+            return ""
+        ending_index = terminal_text.find('\n', start_index)
+        if ending_index == -1:
+            ending_index = len(terminal_text) - 1
+        result = terminal_text[start_index + len(line_start):ending_index]
+        return result
+
+    def terminal_chicken_complete_current_line(terminal_name: str):
+        """Performs terminal completion on the current line"""
+        actions.edit.extend_line_start()
+        text_to_complete = actions.edit.selected_text()
+        terminal_text = actions.user.terminal_chicken_obtain_terminal_text_after_completion(terminal_name, text_to_complete)
+        completion_text = actions.user.terminal_chicken_compute_completion_text(text_to_complete, terminal_text)
+        actions.edit.right()
+        actions.insert(completion_text)

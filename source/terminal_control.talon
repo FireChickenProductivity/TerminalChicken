@@ -8,3 +8,5 @@ send:
 run <user.cursorless_target>:
     user.terminal_chicken_send_command_on_line_with_cursorless_target_to_terminal(cursorless_target, "Terminal")
     edit.file_end()
+
+complete: user.terminal_chicken_complete_current_line("Terminal")
