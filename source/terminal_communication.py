@@ -1,7 +1,7 @@
 from talon import Module, Context, actions
 from typing import Any
 
-FOCUS_ACTION_NAMES = ['focus', 'key']
+FOCUS_ACTION_NAMES = ['focus', 'key', 'act']
 
 def extract_action_and_text(terminal_text: str):
     for action_name in FOCUS_ACTION_NAMES:
@@ -22,6 +22,9 @@ class Actions:
             actions.user.switcher_focus(text)
         elif action == 'key':
             actions.key(text)
+        elif action == 'act':
+            action = getattr(actions, text)
+            action()
         else:
             raise ValueError(f"TerminalChicken: Received invalid terminal focusing action {action}!")
     
