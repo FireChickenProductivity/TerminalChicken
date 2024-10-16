@@ -23,8 +23,15 @@ class Actions:
         elif action == 'key':
             actions.key(text)
         elif action == 'act':
-            action = getattr(actions, text)
-            action()
+            action_name = text
+            value = None
+            if " " in text:
+                action_name, value = text.split(" ", 1)
+            action = getattr(actions, action_name)
+            if value:
+                action(value)
+            else:
+                action()
         else:
             raise ValueError(f"TerminalChicken: Received invalid terminal focusing action {action}!")
     
