@@ -1,6 +1,13 @@
 from talon import Module, Context, actions
 from typing import Any
 
+FOCUS_ACTION_NAMES = ['focus', 'key']
+
+def extract_action_and_text(terminal_text: str):
+    for action_name in FOCUS_ACTION_NAMES:
+        if terminal_text.startswith(action_name + " "):
+            return action_name, terminal_text[len(action_name) + 1:]
+
 module = Module()
 @module.action_class
 class Actions:
@@ -10,7 +17,13 @@ class Actions:
 
     def terminal_chicken_focus_terminal(name: str):
         """Focuses the terminal with the specified name"""
-        actions.user.switcher_focus(name)
+        action, text = extract_action_and_text(name)
+        if action == 'focus':
+            actions.user.switcher_focus(text)
+        elif action == 'key':
+            actions.key(text)
+        else:
+            raise ValueError(f"TerminalChicken: Received invalid terminal focusing action {action}!")
     
     def terminal_chicken_send_command_to_terminal(command: str, terminal_name: str):
         """Sends the specified command to the specified terminal program"""
