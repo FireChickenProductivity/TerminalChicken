@@ -3,6 +3,9 @@ from typing import Any
 
 FOCUS_ACTION_NAMES = ['focus', 'key', 'act']
 
+current_terminal_focus_action = "focus Terminal"
+current_terminal_return_action = "focus Code"
+
 def extract_action_and_text(terminal_text: str):
     for action_name in FOCUS_ACTION_NAMES:
         if terminal_text.startswith(action_name + " "):
@@ -11,11 +14,21 @@ def extract_action_and_text(terminal_text: str):
 module = Module()
 @module.action_class
 class Actions:
+    def terminal_chicken_update_terminal(text: str):
+        """Updates the terminal chicken with the specified text"""
+        global current_terminal_focus_action
+        global current_terminal_return_action
+        if ',' not in text:
+            current_terminal_focus_action = text
+            current_terminal_return_action = "focus Code"
+        else:
+            current_terminal_focus_action, current_terminal_return_action = text.split(",", 1)
+
     def terminal_chicken_focus_vscode():
         """Focuses visual studio code"""
         actions.user.switcher_focus("Code")
 
-    def terminal_chicken_focus_terminal(name: str):
+    def terminal_chicken_focus(name: str):
         """Focuses the terminal with the specified name"""
         action, text = extract_action_and_text(name)
         if action == 'focus':
@@ -34,29 +47,33 @@ class Actions:
                 action()
         else:
             raise ValueError(f"TerminalChicken: Received invalid terminal focusing action {action}!")
+
+    def terminal_chicken_focus_terminal():
+        """Focuses the terminal chicken terminal"""
+        actions.user.terminal_chicken_focus(current_terminal_focus_action)
     
-    def terminal_chicken_send_command_to_terminal(command: str, terminal_name: str):
+    def terminal_chicken_send_command_to_terminal(command: str):
         """Sends the specified command to the specified terminal program"""
-        actions.user.terminal_chicken_focus_terminal(terminal_name)
+        actions.user.terminal_chicken_focus_terminal()
         actions.insert(command)
         actions.key('enter')
         actions.user.terminal_chicken_focus_vscode()
     
-    def terminal_chicken_send_command_on_current_line_to_terminal(terminal_name: str):
+    def terminal_chicken_send_command_on_current_line_to_terminal():
         """Sends the text on the current line to the specified terminal program"""
         actions.edit.line_start()
         actions.edit.extend_line_end()
         text = actions.edit.selected_text()
-        actions.user.terminal_chicken_send_command_to_terminal(text, terminal_name)
+        actions.user.terminal_chicken_send_command_to_terminal(text)
 
-    def terminal_chicken_send_command_on_line_with_cursorless_target_to_terminal(target: Any, terminal_name: str):
-        """Sends the text on the line with the specified cursorless target with the specified terminal program"""
+    def terminal_chicken_send_command_on_line_with_cursorless_target_to_terminal(target: Any):
+        """Sends the text on the line with the specified cursorless target with the terminal program"""
         actions.user.cursorless_command("setSelection", target)
-        actions.user.terminal_chicken_send_command_on_current_line_to_terminal(terminal_name)
+        actions.user.terminal_chicken_send_command_on_current_line_to_terminal()
 
-    def terminal_chicken_obtain_terminal_text_after_completion(terminal_name: str, text_to_complete: str):
+    def terminal_chicken_obtain_terminal_text_after_completion(text_to_complete: str):
         """Gets the text in the terminal with specified name"""
-        actions.user.terminal_chicken_focus_terminal(terminal_name)
+        actions.user.terminal_chicken_focus_terminal()
         actions.insert(text_to_complete)
         actions.key('tab')
         actions.edit.select_all()
@@ -78,11 +95,11 @@ class Actions:
         result = terminal_text[start_index + len(line_start):ending_index]
         return result
 
-    def terminal_chicken_complete_current_line(terminal_name: str):
+    def terminal_chicken_complete_current_line():
         """Performs terminal completion on the current line"""
         actions.edit.extend_line_start()
         text_to_complete = actions.edit.selected_text()
-        terminal_text = actions.user.terminal_chicken_obtain_terminal_text_after_completion(terminal_name, text_to_complete)
+        terminal_text = actions.user.terminal_chicken_obtain_terminal_text_after_completion(text_to_complete)
         completion_text = actions.user.terminal_chicken_compute_completion_text(text_to_complete, terminal_text)
         actions.edit.right()
         actions.insert(completion_text)
