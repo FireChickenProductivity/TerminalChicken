@@ -1,4 +1,4 @@
-from talon import Module, Context, actions, app, settings
+from talon import Module, actions, app, settings
 from typing import Any, Callable
 
 FOCUS_ACTION_NAMES = ['focus', 'key', 'act']
