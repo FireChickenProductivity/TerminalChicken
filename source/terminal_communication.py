@@ -12,21 +12,26 @@ def extract_action_and_text(terminal_text: str):
             return action_name, terminal_text[len(action_name) + 1:]
 
 module = Module()
+
+module.list("terminal_chicken_terminal", desc="List of definitions for terminal chicken terminals")
+
 @module.action_class
 class Actions:
     def terminal_chicken_update_terminal(text: str):
         """Updates the terminal chicken with the specified text"""
         global current_terminal_focus_action
         global current_terminal_return_action
-        if ',' not in text:
+        print('text', text)
+        if ';' not in text:
             current_terminal_focus_action = text
             current_terminal_return_action = "focus Code"
         else:
-            current_terminal_focus_action, current_terminal_return_action = text.split(",", 1)
+            current_terminal_focus_action, current_terminal_return_action = text.split(";", 1)
+        print('current_terminal_focus_action', current_terminal_focus_action)
 
-    def terminal_chicken_focus_vscode():
-        """Focuses visual studio code"""
-        actions.user.switcher_focus("Code")
+    def terminal_chicken_return():
+        """Returns to terminal control"""
+        actions.user.terminal_chicken_focus(current_terminal_return_action)
 
     def terminal_chicken_focus(name: str):
         """Focuses the terminal with the specified name"""
@@ -57,7 +62,7 @@ class Actions:
         actions.user.terminal_chicken_focus_terminal()
         actions.insert(command)
         actions.key('enter')
-        actions.user.terminal_chicken_focus_vscode()
+        actions.user.terminal_chicken_return()
     
     def terminal_chicken_send_command_on_current_line_to_terminal():
         """Sends the text on the current line to the specified terminal program"""
@@ -81,7 +86,7 @@ class Actions:
         text = actions.edit.selected_text()
         actions.edit.right()
         actions.key('ctrl-c')
-        actions.user.terminal_chicken_focus_vscode()
+        actions.user.terminal_chicken_return()
         return text
 
     def terminal_chicken_compute_completion_text(line_start: str, terminal_text: str):
