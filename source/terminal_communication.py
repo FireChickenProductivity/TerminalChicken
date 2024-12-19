@@ -1,4 +1,4 @@
-from talon import Module, actions, app, settings
+from talon import Module, actions, app, settings, imgui
 from typing import Any, Callable
 
 FOCUS_ACTION_NAMES = ['focus', 'key', 'act']
@@ -7,11 +7,19 @@ current_terminal_focus_action = ""
 current_terminal_return_action = ""
 current_terminal_next_action = ""
 current_terminal_previous_action = ""
+completion_options = []
 
 def extract_action_and_text(terminal_text: str):
     for action_name in FOCUS_ACTION_NAMES:
         if terminal_text.startswith(action_name + " "):
             return action_name, terminal_text[len(action_name) + 1:]
+
+def find_text_after_biggest_leading_suffix(suffix: str, target: str):
+    for i in range(len(suffix)):
+        candidate = suffix[i:]
+        if target.startswith(candidate):
+            return target[len(candidate):]
+    return target
 
 module = Module()
 module.setting(
@@ -36,6 +44,16 @@ module.setting(
 )
 
 module.list("terminal_chicken_terminal", desc="List of definitions for terminal chicken terminals")
+
+@imgui.open(y=0)
+def gui(gui: imgui.GUI):
+    global completion_options
+    gui.text("Completion Options")
+    gui.line()
+    for index, option in enumerate(completion_options):
+        gui.text(f"completion {index + 1}: {option}")    
+    if gui.button("completion close"):
+        actions.user.terminal_chicken_hide_completion_options()
 
 def compute_split_values_with_defaults(text: str, default_values):
     values = text.split(";")
@@ -172,7 +190,36 @@ class Actions:
         terminal_text = actions.user.terminal_chicken_obtain_terminal_text_after_completion(text_to_complete)
         completion_text = actions.user.terminal_chicken_compute_completion_text(text_to_complete, terminal_text)
         actions.edit.right()
-        actions.insert(completion_text)
+        if completion_text:
+            actions.insert(completion_text)
+        else:
+            last_completion_text_instance = terminal_text.rfind(text_to_complete)
+            remaining_text = terminal_text[last_completion_text_instance + len(text_to_complete):]
+            if remaining_text:
+                options = remaining_text.strip().split()
+                if options:
+                    global completion_options
+                    completion_options = []
+                    for option in options:
+                        option_text = find_text_after_biggest_leading_suffix(text_to_complete, option)
+                        completion_options.append(option_text)
+                    actions.user.terminal_chicken_show_completion_options()
+    
+    def terminal_chicken_show_completion_options():
+        """Shows terminal chicken completion options"""
+        gui.show()
+    
+    def terminal_chicken_hide_completion_options():
+        """Hides terminal chicken completion options"""
+        gui.hide()
+        global completion_options
+        completion_options = None
+    
+    def terminal_chicken_select_completion_option(option: int):
+        """Selects the specified completion option"""
+        if completion_options:
+            actions.insert(completion_options[option - 1])
+            actions.user.terminal_chicken_hide_completion_options()
     
 def on_ready():
     actions.user.terminal_chicken_update_terminal(settings.get("user.terminal_chicken_default_terminal"))
