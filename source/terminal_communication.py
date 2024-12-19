@@ -1,10 +1,10 @@
-from talon import Module, Context, actions
+from talon import Module, Context, actions, app, settings
 from typing import Any
 
 FOCUS_ACTION_NAMES = ['focus', 'key', 'act']
 
-current_terminal_focus_action = "focus Terminal"
-current_terminal_return_action = "focus Code"
+current_terminal_focus_action = ""
+current_terminal_return_action = ""
 
 def extract_action_and_text(terminal_text: str):
     for action_name in FOCUS_ACTION_NAMES:
@@ -12,6 +12,12 @@ def extract_action_and_text(terminal_text: str):
             return action_name, terminal_text[len(action_name) + 1:]
 
 module = Module()
+module.setting(
+    'terminal_chicken_default_terminal',
+    type = str,
+    default = 'act user.vscode workbench.action.terminal.focus;act user.vscode workbench.action.focusActiveEditorGroup',
+    desc = 'The default terminal for terminal chicken'
+)
 
 module.list("terminal_chicken_terminal", desc="List of definitions for terminal chicken terminals")
 
@@ -108,3 +114,7 @@ class Actions:
         completion_text = actions.user.terminal_chicken_compute_completion_text(text_to_complete, terminal_text)
         actions.edit.right()
         actions.insert(completion_text)
+    
+def on_ready():
+    actions.user.terminal_chicken_update_terminal(settings.get("user.terminal_chicken_default_terminal"))
+app.register("ready", on_ready)
