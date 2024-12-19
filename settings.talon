@@ -1,2 +1,2 @@
 settings():
-    user.terminal_chicken_default_terminal = "act user.vscode workbench.action.terminal.focus;act user.vscode workbench.action.focusActiveEditorGroup"
+    user.terminal_chicken_default_terminal = "act user.vscode workbench.action.terminal.focus;act user.vscode workbench.action.focusActiveEditorGroup;act user.vscode workbench.action.terminal.focusNext;act user.vscode workbench.action.terminal.focusPrevious"

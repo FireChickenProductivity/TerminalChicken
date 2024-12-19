@@ -1,10 +1,12 @@
 from talon import Module, Context, actions, app, settings
-from typing import Any
+from typing import Any, Callable
 
 FOCUS_ACTION_NAMES = ['focus', 'key', 'act']
 
 current_terminal_focus_action = ""
 current_terminal_return_action = ""
+current_terminal_next_action = ""
+current_terminal_previous_action = ""
 
 def extract_action_and_text(terminal_text: str):
     for action_name in FOCUS_ACTION_NAMES:
@@ -15,11 +17,44 @@ module = Module()
 module.setting(
     'terminal_chicken_default_terminal',
     type = str,
-    default = 'act user.vscode workbench.action.terminal.focus;act user.vscode workbench.action.focusActiveEditorGroup',
+    default = 'act user.vscode workbench.action.terminal.focus;act user.vscode workbench.action.focusActiveEditorGroup;act user.vscode workbench.action.terminal.focusNext;act user.vscode workbench.action.terminal.focusPrevious',
     desc = 'The default terminal for terminal chicken'
 )
 
+module.setting(
+    'terminal_chicken_switch_delay',
+    type = float,
+    default = 0.2,
+    desc = "How long to sweep after switching application or windows in certain contexts"
+)
+
+module.setting(
+    'terminal_chicken_copy_delay',
+    type = float,
+    default = 0.5, 
+    desc = "How long to wait in between selecting terminal text and copying it"
+)
+
 module.list("terminal_chicken_terminal", desc="List of definitions for terminal chicken terminals")
+
+def compute_split_values_with_defaults(text: str, default_values):
+    values = text.split(";")
+    results = []
+    for i in range(len(default_values)):
+        if i < len(values) and values[i] != "":
+            results.append(values[i])
+        else:
+            results.append(default_values[i])
+    return results
+
+def sleep_delay_setting(name: str):
+    actions.sleep(settings.get(name))
+
+def sleep_for_switch_delay():
+    sleep_delay_setting("user.terminal_chicken_switch_delay")
+
+def sleep_for_copy_delay():
+    sleep_delay_setting("user.terminal_chicken_copy_delay")
 
 @module.action_class
 class Actions:
@@ -27,14 +62,13 @@ class Actions:
         """Updates the terminal chicken with the specified text"""
         global current_terminal_focus_action
         global current_terminal_return_action
-        print('text', text)
-        if ';' not in text:
-            current_terminal_focus_action = text
-            current_terminal_return_action = "focus Code"
-        else:
-            current_terminal_focus_action, current_terminal_return_action = text.split(";", 1)
-        print('current_terminal_focus_action', current_terminal_focus_action)
-
+        global current_terminal_next_action
+        global current_terminal_previous_action
+        current_terminal_focus_action, current_terminal_return_action, current_terminal_next_action, current_terminal_previous_action = compute_split_values_with_defaults(
+            text,
+            ["", "focus Code", "act app.window_next", "act app.window_previous"]
+        )
+            
     def terminal_chicken_return():
         """Returns to terminal control"""
         actions.user.terminal_chicken_focus(current_terminal_return_action)
@@ -62,6 +96,31 @@ class Actions:
     def terminal_chicken_focus_terminal():
         """Focuses the terminal chicken terminal"""
         actions.user.terminal_chicken_focus(current_terminal_focus_action)
+
+    def terminal_chicken_switch_to_next_terminal():
+        """Switches the currently active terminal chicken terminal to the next one"""
+        actions.user.terminal_chicken_focus(current_terminal_next_action)
+
+    def terminal_chicken_switch_to_previous_terminal():
+        """Switches the currently active terminal chicken terminal to the previous one"""
+        actions.user.terminal_chicken_focus(current_terminal_previous_action)
+
+    def terminal_chicken_switch_terminal_instance(action: Callable, times: int = 1):
+        """Switches the terminal instance with the specified action"""
+        actions.user.terminal_chicken_focus_terminal()
+        sleep_for_switch_delay()
+        for _ in range(times):
+            action()
+            sleep_for_switch_delay()
+        actions.user.terminal_chicken_return()
+
+    def terminal_chicken_switch_to_next_terminal_instance(times: int = 1):
+        """Switches the terminal chicken terminal instance to the next one from cursorless  and returns to the application"""
+        actions.user.terminal_chicken_switch_terminal_instance(actions.user.terminal_chicken_switch_to_next_terminal, times)
+
+    def terminal_chicken_switch_to_previous_terminal_instance(times: int = 1):
+        """Switches the terminal chicken terminal instance to the previous one from cursorless and returns to the application"""
+        actions.user.terminal_chicken_switch_terminal_instance(actions.user.terminal_chicken_switch_to_previous_terminal, times)
     
     def terminal_chicken_send_command_to_terminal(command: str):
         """Sends the specified command to the specified terminal program"""
@@ -88,7 +147,7 @@ class Actions:
         actions.insert(text_to_complete)
         actions.key('tab')
         actions.edit.select_all()
-        actions.sleep(0.5)
+        sleep_for_copy_delay()
         text = actions.edit.selected_text()
         actions.edit.right()
         actions.key('ctrl-c')

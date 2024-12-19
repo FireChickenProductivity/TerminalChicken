@@ -1,4 +1,4 @@
 list: user.terminal_chicken_terminal
 -
 terminal: focus Terminal
-code: act user.vscode workbench.action.terminal.focus;act user.vscode workbench.action.focusActiveEditorGroup
+code: act user.vscode workbench.action.terminal.focus;act user.vscode workbench.action.focusActiveEditorGroup;act user.vscode workbench.action.terminal.focusNext;act user.vscode workbench.action.terminal.focusPrevious

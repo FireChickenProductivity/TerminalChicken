@@ -15,5 +15,11 @@ run <user.cursorless_target>:
 
 complete: user.terminal_chicken_complete_current_line()
 
-terminal (set|update) {user.terminal_chicken_terminal}:
+term (set|update) {user.terminal_chicken_terminal}:
     user.terminal_chicken_update_terminal(terminal_chicken_terminal)
+
+term next [<number_small>]:
+    user.terminal_chicken_switch_to_next_terminal_instance(number_small or 1)
+
+term last [<number_small>]:
+    user.terminal_chicken_switch_to_previous_terminal_instance(number_small or 1)
