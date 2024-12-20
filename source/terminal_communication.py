@@ -179,7 +179,7 @@ class Actions:
             return ""
         ending_index = terminal_text.find('\n', start_index)
         if ending_index == -1:
-            ending_index = len(terminal_text) - 1
+            ending_index = len(terminal_text)
         result = terminal_text[start_index + len(line_start):ending_index]
         return result
 
