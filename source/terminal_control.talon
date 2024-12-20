@@ -14,8 +14,6 @@ run <user.cursorless_target>:
     edit.file_end()
 
 complete: user.terminal_chicken_complete_current_line()
-completion <number_small>: user.terminal_chicken_select_completion_option(number_small)
-completion (close|hide): user.terminal_chicken_hide_completion_options()
 
 term (set|update) {user.terminal_chicken_terminal}:
     user.terminal_chicken_update_terminal(terminal_chicken_terminal)

@@ -1,4 +1,4 @@
-from talon import Module, actions, app, settings, imgui
+from talon import Module, Context, actions, app, settings, imgui
 from typing import Any, Callable
 
 FOCUS_ACTION_NAMES = ['focus', 'key', 'act']
@@ -208,10 +208,12 @@ class Actions:
     def terminal_chicken_show_completion_options():
         """Shows terminal chicken completion options"""
         gui.show()
+        actions.user.terminal_chicken_activate_completion_options_context()
     
     def terminal_chicken_hide_completion_options():
         """Hides terminal chicken completion options"""
         gui.hide()
+        actions.user.terminal_chicken_deactivate_completion_options_context()
         global completion_options
         completion_options = None
     
