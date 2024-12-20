@@ -1,7 +1,8 @@
-from talon import Module, Context, actions, app, settings, imgui
+from talon import Module, actions, app, settings, imgui
 from typing import Any, Callable
 
 FOCUS_ACTION_NAMES = ['focus', 'key', 'act']
+DEFAULT_TERMINAL_STRING = 'act user.vscode workbench.action.terminal.focus;act user.vscode workbench.action.focusActiveEditorGroup;act user.vscode workbench.action.terminal.focusNext;act user.vscode workbench.action.terminal.focusPrevious'
 
 current_terminal_focus_action = ""
 current_terminal_return_action = ""
@@ -21,11 +22,21 @@ def find_text_after_biggest_leading_suffix(suffix: str, target: str):
             return target[len(candidate):]
     return target
 
+def update_terminal(text: str):
+    global current_terminal_focus_action
+    global current_terminal_return_action
+    global current_terminal_next_action
+    global current_terminal_previous_action
+    current_terminal_focus_action, current_terminal_return_action, current_terminal_next_action, current_terminal_previous_action = compute_split_values_with_defaults(
+        text,
+        ["", "focus Code", "act app.window_next", "act app.window_previous"]
+    )
+
 module = Module()
 module.setting(
     'terminal_chicken_default_terminal',
     type = str,
-    default = 'act user.vscode workbench.action.terminal.focus;act user.vscode workbench.action.focusActiveEditorGroup;act user.vscode workbench.action.terminal.focusNext;act user.vscode workbench.action.terminal.focusPrevious',
+    default = None,
     desc = 'The default terminal for terminal chicken'
 )
 
@@ -78,14 +89,7 @@ def sleep_for_copy_delay():
 class Actions:
     def terminal_chicken_update_terminal(text: str):
         """Updates the terminal chicken with the specified text"""
-        global current_terminal_focus_action
-        global current_terminal_return_action
-        global current_terminal_next_action
-        global current_terminal_previous_action
-        current_terminal_focus_action, current_terminal_return_action, current_terminal_next_action, current_terminal_previous_action = compute_split_values_with_defaults(
-            text,
-            ["", "focus Code", "act app.window_next", "act app.window_previous"]
-        )
+        update_terminal(text)
             
     def terminal_chicken_return():
         """Returns to terminal control"""
@@ -224,5 +228,8 @@ class Actions:
             actions.user.terminal_chicken_hide_completion_options()
     
 def on_ready():
-    actions.user.terminal_chicken_update_terminal(settings.get("user.terminal_chicken_default_terminal"))
+    current_setting_value = settings.get("user.terminal_chicken_default_terminal")
+    if not current_setting_value:
+        current_setting_value = DEFAULT_TERMINAL_STRING
+    update_terminal(current_setting_value)
 app.register("ready", on_ready)
