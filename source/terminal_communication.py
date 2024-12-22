@@ -9,18 +9,49 @@ current_terminal_return_action = ""
 current_terminal_next_action = ""
 current_terminal_previous_action = ""
 completion_options = []
+text_to_complete_with_options = ""
 
 def extract_action_and_text(terminal_text: str):
     for action_name in FOCUS_ACTION_NAMES:
         if terminal_text.startswith(action_name + " "):
             return action_name, terminal_text[len(action_name) + 1:]
 
-def find_text_after_biggest_leading_suffix(suffix: str, target: str):
+def find_biggest_leading_suffix(suffix: str, target: str):
     for i in range(len(suffix)):
         candidate = suffix[i:]
         if target.startswith(candidate):
-            return target[len(candidate):]
+            return candidate
+    return ""
+
+def find_text_after_suffix(suffix: str, target: str):
+    if target.startswith(suffix):
+        return target[len(suffix):]
     return target
+
+def compute_options_from_terminal_completion_output(text: str):
+    options = []
+    current_option = ""
+    is_inside_string = False
+    consecutive_backslash_count = 0
+    for character in text:
+        if character == "\\":
+            consecutive_backslash_count += 1
+            if consecutive_backslash_count == 2:
+                current_option += "\\"
+                consecutive_backslash_count = 0
+        else:
+            if character == " " and not is_inside_string and consecutive_backslash_count == 0:
+                if current_option:
+                    options.append(current_option)
+                current_option = ""
+            elif character == '"' and not is_inside_string and consecutive_backslash_count == 0:
+                is_inside_string = not is_inside_string
+            else:
+                current_option += character
+            consecutive_backslash_count = 0
+    if current_option:
+        options.append(current_option)
+    return options
 
 def update_terminal(text: str):
     global current_terminal_focus_action
@@ -200,12 +231,14 @@ class Actions:
             last_completion_text_instance = terminal_text.rfind(text_to_complete)
             remaining_text = terminal_text[last_completion_text_instance + len(text_to_complete):]
             if remaining_text:
-                options = remaining_text.strip().split()
+                options = compute_options_from_terminal_completion_output(remaining_text.strip())
                 if options:
-                    global completion_options
+                    suffix = find_biggest_leading_suffix(text_to_complete, options[0])
+                    global completion_options, text_to_complete_with_options
+                    text_to_complete_with_options = suffix
                     completion_options = []
                     for option in options:
-                        option_text = find_text_after_biggest_leading_suffix(text_to_complete, option)
+                        option_text = find_text_after_suffix(suffix, option)
                         completion_options.append(option_text)
                     actions.user.terminal_chicken_show_completion_options()
     
@@ -224,7 +257,14 @@ class Actions:
     def terminal_chicken_select_completion_option(option: int):
         """Selects the specified completion option"""
         if completion_options:
-            actions.insert(completion_options[option - 1])
+            completion = completion_options[option - 1]
+            if " " in completion:
+                for _ in range(len(text_to_complete_with_options)):
+                    actions.edit.delete()
+                completion = text_to_complete_with_options + completion + '"'
+                if not completion.startswith('"'):
+                    completion = '"' + completion
+            actions.insert(completion)
             actions.user.terminal_chicken_hide_completion_options()
     
 def on_ready():
