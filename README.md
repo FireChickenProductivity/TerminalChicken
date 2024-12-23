@@ -27,7 +27,7 @@ This maps names of terminal programs to information on how to interact with them
 
 Action descriptions obey the following rules. "focus (Name)" means using the user.switcher_focus action with the name, such as "focus Terminal" for mac. "act (action_name) (optional string argument)" means using the specified talon action with the optional argument if present. Example: "act user.vscode workbench.action.terminal.focus" for focusing the terminal in VSCode itself. 
 
-The default action for returning to VSCode if none is provided is "focus Code". The default action for focusing the next terminal window is "act app.window_next", and the default action for focusing the previous terminal window is "act app.window_previous".
+The default action for returning to VSCode if none is provided is "focus Code". The default action for focusing the next terminal window is "act app.window_next", and the default action for focusing the previous terminal window is "act app.window_previous". The default is used if the action is omitted or is empty.
 
 # Dependencies
 The current setup depends on the following community actions::
