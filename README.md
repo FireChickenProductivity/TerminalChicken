@@ -2,7 +2,7 @@
 Terminal Chicken allows writing terminal commands in VSCode and then sending them to a terminal. This allows benefiting from cursorless editing for terminal commands. Terminal Chicken supports text completion by sending the text over to the terminal, attempting to use its builtin completion mechanism, and then copying the text in the terminal so that it can be brought back into VSCode.
 
 # Commands
-Terminal chicken commands are available if the current file is a .terminalchicken file. The command "terminal chicken" is available in VSCode to open a default .terminalchicken file using the command palette.
+Terminal chicken commands are available in VSCode if the current file is a .terminalchicken file. The command "terminal chicken" is available in VSCode to open a default .terminalchicken file using the command palette.
 
 send: sends the current line to the terminal and starts a new line in VSCode.
 
