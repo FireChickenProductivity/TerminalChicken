@@ -23,7 +23,7 @@ term next (optional number_small): attempts to switch the terminal to the next w
 terminal last (optional number_small): attempts to switch the terminal to the previous window. If the optional number is provided, it attempts to switch back that many windows.
 
 # terminal_chicken_terminal.talon-list
-This maps names of terminal programs to information on how to interact with them. Terminal Chicken expects information in the form of a semicolon separated list. The first entry describes how to focus the terminal, the second describes the action for returning to VSCode, the third describes the action for focusing the next terminal window, and the fourth describes the action for focusing the previous terminal window. 
+This maps names of terminal programs to information on how to interact with them. Terminal Chicken expects information in the form of a semicolon separated list. The first entry describes how to focus the terminal, the second describes the action for focusing the next terminal window, the third describes the action for focusing the previous terminal window, and the fourth describes the action for returning to VSCode. 
 
 Action descriptions obey the following rules. "focus (Name)" means using the user.switcher_focus action with the name, such as "focus Terminal" for mac. "act (action_name) (optional string argument)" means using the specified talon action with the optional argument if present. Example: "act user.vscode workbench.action.terminal.focus" for focusing the terminal in VSCode itself. 
 
@@ -42,7 +42,7 @@ This setup is partly dependent on cursorless.
 The tag user.terminal_chicken is active in a .terminalchicken file in VSCode, which could be used to activate your terminal commands.
 
 # Settings
-user.terminal_chicken_default_terminal can be used to provide the description for the default terminal. 
+user.terminal_chicken_default_terminal can be used to provide the description for the default terminal. Appropriate settings for working with VSCode are used by default.
 
 # Issues
 The completion action may not handle all corner cases.

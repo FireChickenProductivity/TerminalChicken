@@ -2,7 +2,7 @@ from talon import Module, actions, app, settings, imgui
 from typing import Any, Callable
 
 FOCUS_ACTION_NAMES = ['focus', 'key', 'act']
-DEFAULT_TERMINAL_STRING = 'act user.vscode workbench.action.terminal.focus;act user.vscode workbench.action.focusActiveEditorGroup;act user.vscode workbench.action.terminal.focusNext;act user.vscode workbench.action.terminal.focusPrevious'
+DEFAULT_TERMINAL_STRING = 'act user.vscode workbench.action.terminal.focus;act user.vscode workbench.action.terminal.focusNext;act user.vscode workbench.action.terminal.focusPrevious;act user.vscode workbench.action.focusActiveEditorGroup'
 
 current_terminal_focus_action = ""
 current_terminal_return_action = ""
@@ -58,9 +58,9 @@ def update_terminal(text: str):
     global current_terminal_return_action
     global current_terminal_next_action
     global current_terminal_previous_action
-    current_terminal_focus_action, current_terminal_return_action, current_terminal_next_action, current_terminal_previous_action = compute_split_values_with_defaults(
+    current_terminal_focus_action, current_terminal_next_action, current_terminal_previous_action, current_terminal_return_action = compute_split_values_with_defaults(
         text,
-        ["", "focus Code", "act app.window_next", "act app.window_previous"]
+        ["", "act app.window_next", "act app.window_previous", "focus Code"]
     )
 
 module = Module()
