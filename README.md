@@ -8,7 +8,7 @@ send: sends the current line to the terminal and starts a new line in VSCode.
 
 consume: sends the current line to the terminal and deletes it. This can be useful for commands you would not want to accidentally repeat.
 
-run (user.cursorless_target): sends the line containing the target to the terminal and puts the cursor on the bottom of the file.
+run (user.cursorless_target): sends the line containing the target to the terminal and puts the cursor at the bottom of the file.
 
 complete: attempts to complete the current line using the terminal's completion feature. This may not handle all corner cases. If only a single completion option is detected, it gets brought back to VSCode. Otherwise, all options are shown through a completion menu and you choose the desired one with "completion (option number)". 
 
@@ -20,10 +20,10 @@ term set (terminal name from terminal_chicken_terminal.talon-list): sets the ter
 
 term next (optional number_small): attempts to switch the terminal to the next window. If the optional number_small is provided, it will attempt to advance to the next window that many times.
 
-terminal last (optional number_small): attempts to switch the terminal to the previous window. Of the optional number is provided, it attempts to switch back that many windows.
+terminal last (optional number_small): attempts to switch the terminal to the previous window. If the optional number is provided, it attempts to switch back that many windows.
 
 # terminal_chicken_terminal.talon-list
-This maps names of terminal programs to information on how to interact with them. Terminal Chicken expects information in the form of a semicolon separated list. The first entry describes how to focus the terminal, the second describes the action for returning to VSCode, the third describes the action for focusing the next terminal window, aunt the fourth describes the action for focusing the previous terminal window. 
+This maps names of terminal programs to information on how to interact with them. Terminal Chicken expects information in the form of a semicolon separated list. The first entry describes how to focus the terminal, the second describes the action for returning to VSCode, the third describes the action for focusing the next terminal window, and the fourth describes the action for focusing the previous terminal window. 
 
 Action descriptions obey the following rules. "focus (Name)" means using the user.switcher_focus action with the name, such as "focus Terminal" for mac. "act (action_name) (optional string argument)" means using the specified talon action with the optional argument if present. Example: "act user.vscode workbench.action.terminal.focus" for focusing the terminal in VSCode itself. 
 
