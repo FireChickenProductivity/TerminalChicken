@@ -226,7 +226,7 @@ class Actions:
         completion_text = actions.user.terminal_chicken_compute_completion_text(text_to_complete, terminal_text)
         actions.edit.right()
         if completion_text:
-            actions.insert(completion_text)
+            actions.user.terminal_chicken_perform_completion(text_to_complete, completion_text)
         else:
             last_completion_text_instance = terminal_text.rfind(text_to_complete)
             remaining_text = terminal_text[last_completion_text_instance + len(text_to_complete):]
@@ -254,17 +254,23 @@ class Actions:
         global completion_options
         completion_options = None
     
+    def terminal_chicken_perform_completion(text_to_complete: str, completion: str):
+        """Completes the text inside the editor"""
+        if " " in completion or text_to_complete.endswith(" "):
+            print(text_to_complete, 'completing it with a space')
+            for _ in range(len(text_to_complete)):
+                actions.edit.delete()
+            completion = text_to_complete + completion + '"'
+            if not '"' in text_to_complete:
+                completion = '"' + completion
+        print('text_to_complete', text_to_complete)
+        actions.insert(completion)
+        
     def terminal_chicken_select_completion_option(option: int):
         """Selects the specified completion option"""
         if completion_options:
             completion = completion_options[option - 1]
-            if " " in completion:
-                for _ in range(len(text_to_complete_with_options)):
-                    actions.edit.delete()
-                completion = text_to_complete_with_options + completion + '"'
-                if not completion.startswith('"'):
-                    completion = '"' + completion
-            actions.insert(completion)
+            actions.user.terminal_chicken_perform_completion(text_to_complete_with_options, completion)
             actions.user.terminal_chicken_hide_completion_options()
     
 def on_ready():
