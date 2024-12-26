@@ -129,10 +129,6 @@ class Actions:
         """Updates the terminal chicken with the specified text"""
         update_terminal(text)
             
-    def terminal_chicken_return():
-        """Returns to terminal control"""
-        actions.user.terminal_chicken_focus(current_terminal_return_action)
-
     def terminal_chicken_focus(name: str):
         """Focuses the terminal with the specified name"""
         action, text = extract_action_and_text(name)
@@ -157,14 +153,6 @@ class Actions:
         """Focuses the terminal chicken terminal"""
         actions.user.terminal_chicken_focus(current_terminal_focus_action)
 
-    def terminal_chicken_switch_to_next_terminal():
-        """Switches the currently active terminal chicken terminal to the next one"""
-        actions.user.terminal_chicken_focus(current_terminal_next_action)
-
-    def terminal_chicken_switch_to_previous_terminal():
-        """Switches the currently active terminal chicken terminal to the previous one"""
-        actions.user.terminal_chicken_focus(current_terminal_previous_action)
-
     def terminal_chicken_switch_terminal_instance(action: Callable, times: int = 1):
         """Switches the terminal instance with the specified action"""
         actions.user.terminal_chicken_focus_terminal()
@@ -176,11 +164,11 @@ class Actions:
 
     def terminal_chicken_switch_to_next_terminal_instance(times: int = 1):
         """Switches the terminal chicken terminal instance to the next one from cursorless  and returns to the application"""
-        actions.user.terminal_chicken_switch_terminal_instance(actions.user.terminal_chicken_switch_to_next_terminal, times)
+        actions.user.terminal_chicken_switch_terminal_instance(actions.user.terminal_chicken_next_terminal, times)
 
     def terminal_chicken_switch_to_previous_terminal_instance(times: int = 1):
         """Switches the terminal chicken terminal instance to the previous one from cursorless and returns to the application"""
-        actions.user.terminal_chicken_switch_terminal_instance(actions.user.terminal_chicken_switch_to_previous_terminal, times)
+        actions.user.terminal_chicken_switch_terminal_instance(actions.user.terminal_chicken_last_terminal, times)
     
     def terminal_chicken_send_command_to_terminal(command: str):
         """Sends the specified command to the specified terminal program"""
