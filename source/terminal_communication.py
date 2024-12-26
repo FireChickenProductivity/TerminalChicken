@@ -51,7 +51,7 @@ def compute_terminal_options(text: str):
             elif character in string_characters and is_inside_string and consecutive_backslash_count == 0 and current_option[0] == character:
                 is_inside_string = False
                 current_option += character
-            elif character == " " and not is_inside_string and consecutive_backslash_count == 1:
+            elif consecutive_backslash_count == 1 and character != "\\":
                 current_option += "\\" + character
             else:
                 current_option += character
