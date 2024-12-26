@@ -28,10 +28,11 @@ def find_text_after_suffix(suffix: str, target: str):
         return target[len(suffix):]
     return target
 
-def compute_options_from_terminal_completion_output(text: str):
+def compute_terminal_options(text: str):
     options = []
     current_option = ""
     is_inside_string = False
+    string_characters = ['"', "'"]
     consecutive_backslash_count = 0
     for character in text:
         if character == "\\":
@@ -44,8 +45,14 @@ def compute_options_from_terminal_completion_output(text: str):
                 if current_option:
                     options.append(current_option)
                 current_option = ""
-            elif character == '"' and not is_inside_string and consecutive_backslash_count == 0:
-                is_inside_string = not is_inside_string
+            elif character in string_characters and not is_inside_string and consecutive_backslash_count == 0:
+                is_inside_string = True
+                current_option += character
+            elif character in string_characters and is_inside_string and consecutive_backslash_count == 0 and current_option[0] == character:
+                is_inside_string = False
+                current_option += character
+            elif character == " " and not is_inside_string and consecutive_backslash_count == 1:
+                current_option += "\\" + character
             else:
                 current_option += character
             consecutive_backslash_count = 0
@@ -207,39 +214,39 @@ class Actions:
         actions.user.terminal_chicken_return()
         return text
 
-    def terminal_chicken_compute_completion_text(line_start: str, terminal_text: str):
-        """Computes the completion text given the line start and the terminal text"""
+    def terminal_chicken_compute_completion_text(line_start: str, terminal_text: str, last_argument: str):
+        """Computes the completion text given the line start, last_argument, and the terminal text"""
         start_index = terminal_text.rfind(line_start)
         if start_index == -1:
-            return ""
+            return last_argument
         ending_index = terminal_text.find('\n', start_index)
         if ending_index == -1:
             ending_index = len(terminal_text)
         result = terminal_text[start_index + len(line_start):ending_index]
-        return result
+        return last_argument + result
 
     def terminal_chicken_complete_current_line():
         """Performs terminal completion on the current line"""
         actions.edit.extend_line_start()
         text_to_complete = actions.edit.selected_text()
         terminal_text = actions.user.terminal_chicken_obtain_terminal_text_after_completion(text_to_complete)
-        completion_text = actions.user.terminal_chicken_compute_completion_text(text_to_complete, terminal_text)
+        command_arguments = compute_terminal_options(text_to_complete)
+        last_argument = command_arguments[-1]
+        completion_text = actions.user.terminal_chicken_compute_completion_text(text_to_complete, terminal_text, last_argument)
         actions.edit.right()
-        if completion_text:
-            actions.user.terminal_chicken_perform_completion(text_to_complete, completion_text)
+        if completion_text != last_argument:
+            actions.user.terminal_chicken_perform_completion(last_argument, completion_text)
         else:
             last_completion_text_instance = terminal_text.rfind(text_to_complete)
             remaining_text = terminal_text[last_completion_text_instance + len(text_to_complete):]
             if remaining_text:
-                options = compute_options_from_terminal_completion_output(remaining_text.strip())
+                options = compute_terminal_options(remaining_text.strip())
                 if options:
-                    suffix = find_biggest_leading_suffix(text_to_complete, options[0])
                     global completion_options, text_to_complete_with_options
-                    text_to_complete_with_options = suffix
+                    text_to_complete_with_options = last_argument
                     completion_options = []
                     for option in options:
-                        option_text = find_text_after_suffix(suffix, option)
-                        completion_options.append(option_text)
+                        completion_options.append(option)
                     actions.user.terminal_chicken_show_completion_options()
     
     def terminal_chicken_show_completion_options():
@@ -256,14 +263,11 @@ class Actions:
     
     def terminal_chicken_perform_completion(text_to_complete: str, completion: str):
         """Completes the text inside the editor"""
-        if " " in completion or text_to_complete.endswith(" "):
-            print(text_to_complete, 'completing it with a space')
-            for _ in range(len(text_to_complete)):
-                actions.edit.delete()
-            completion = text_to_complete + completion + '"'
-            if not '"' in text_to_complete:
-                completion = '"' + completion
-        print('text_to_complete', text_to_complete)
+        already_present_suffix = find_biggest_leading_suffix(text_to_complete, completion)
+        if already_present_suffix:
+            completion = find_text_after_suffix(already_present_suffix, completion)
+        for _ in range(len(text_to_complete) - len(already_present_suffix)):
+            actions.edit.delete()
         actions.insert(completion)
         
     def terminal_chicken_select_completion_option(option: int):
