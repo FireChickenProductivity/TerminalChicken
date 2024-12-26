@@ -13,6 +13,6 @@ class Actions:
 
     def terminal_chicken_return():
         """Returns to the controlling program"""
-        actions.switcher_focus("focus Code")
+        actions.user.switcher_focus("Code")
 
     
