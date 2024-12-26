@@ -241,7 +241,9 @@ class Actions:
             remaining_text = terminal_text[last_completion_text_instance + len(text_to_complete):]
             if remaining_text:
                 options = compute_terminal_options(remaining_text.strip())
-                if options:
+                if len(options) == 1 and options[0] != last_argument:
+                   actions.user.terminal_chicken_perform_completion(last_argument, options[0])
+                elif options:
                     global completion_options, text_to_complete_with_options
                     text_to_complete_with_options = last_argument
                     completion_options = []
