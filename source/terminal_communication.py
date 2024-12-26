@@ -218,6 +218,9 @@ class Actions:
         """Computes the completion text given the line start, last_argument, and the terminal text"""
         start_index = terminal_text.rfind(line_start)
         if start_index == -1:
+            terminal_text_arguments = compute_terminal_options(terminal_text)
+            if terminal_text_arguments:
+                return terminal_text_arguments[-1]
             return last_argument
         ending_index = terminal_text.find('\n', start_index)
         if ending_index == -1:
