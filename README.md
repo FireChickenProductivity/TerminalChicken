@@ -26,10 +26,9 @@ terminal last (optional number_small): attempts to switch the terminal to the pr
 This maps names of terminal programs to an action description describing how to switch to the terminal. Action descriptions obey the following rules. "focus (Name)" means using the user.switcher_focus action with the name, such as "focus Terminal" for mac's built in terminal program. "act (action_name) (optional string argument)" means using the specified talon action with the optional argument if present. Example: "act user.vscode workbench.action.terminal.focus" for focusing the terminal in VSCode itself. 
 
 # Terminal Management Actions
-Terminal Chicken uses the following actions to interact with terminal programs that are intended to be overridden on a per terminal program basis when necessary.:
+Terminal Chicken uses the following actions to interact with terminal programs that are intended to be overridden on a per terminal program basis when necessary:
 
 terminal_chicken_next_terminal: Advances to the next terminal
-
     
 terminal_chicken_last_terminal: Advances to the previous terminal
 
@@ -66,7 +65,7 @@ This setup is partly dependent on cursorless.
 The tag user.terminal_chicken is active in a .terminalchicken file in VSCode, which could be used to activate your terminal commands.
 
 # Settings
-user.terminal_chicken_default_terminal can be used to provide the description for the default terminal. Appropriate settings for working with VSCode are used by default.
+user.terminal_chicken_default_terminal can be used to provide the description for the default terminal. The default description is for VSCode's built-in terminal.
 
 # Issues
 The completion action may not handle all corner cases.
