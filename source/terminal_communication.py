@@ -2,12 +2,9 @@ from talon import Module, actions, app, settings, imgui
 from typing import Any, Callable
 
 FOCUS_ACTION_NAMES = ['focus', 'key', 'act']
-DEFAULT_TERMINAL_STRING = 'act user.vscode workbench.action.terminal.focus;act user.vscode workbench.action.terminal.focusNext;act user.vscode workbench.action.terminal.focusPrevious;act user.vscode workbench.action.focusActiveEditorGroup'
+DEFAULT_TERMINAL_STRING = 'act user.vscode workbench.action.terminal.focus'
 
 current_terminal_focus_action = ""
-current_terminal_return_action = ""
-current_terminal_next_action = ""
-current_terminal_previous_action = ""
 completion_options = []
 text_to_complete_with_options = ""
 
@@ -62,13 +59,7 @@ def compute_terminal_options(text: str):
 
 def update_terminal(text: str):
     global current_terminal_focus_action
-    global current_terminal_return_action
-    global current_terminal_next_action
-    global current_terminal_previous_action
-    current_terminal_focus_action, current_terminal_next_action, current_terminal_previous_action, current_terminal_return_action = compute_split_values_with_defaults(
-        text,
-        ["", "act app.window_next", "act app.window_previous", "focus Code"]
-    )
+    current_terminal_focus_action = text.strip()
 
 module = Module()
 module.setting(
@@ -129,10 +120,6 @@ class Actions:
         """Updates the terminal chicken with the specified text"""
         update_terminal(text)
             
-    def terminal_chicken_return():
-        """Returns to terminal control"""
-        actions.user.terminal_chicken_focus(current_terminal_return_action)
-
     def terminal_chicken_focus(name: str):
         """Focuses the terminal with the specified name"""
         action, text = extract_action_and_text(name)
@@ -157,14 +144,6 @@ class Actions:
         """Focuses the terminal chicken terminal"""
         actions.user.terminal_chicken_focus(current_terminal_focus_action)
 
-    def terminal_chicken_switch_to_next_terminal():
-        """Switches the currently active terminal chicken terminal to the next one"""
-        actions.user.terminal_chicken_focus(current_terminal_next_action)
-
-    def terminal_chicken_switch_to_previous_terminal():
-        """Switches the currently active terminal chicken terminal to the previous one"""
-        actions.user.terminal_chicken_focus(current_terminal_previous_action)
-
     def terminal_chicken_switch_terminal_instance(action: Callable, times: int = 1):
         """Switches the terminal instance with the specified action"""
         actions.user.terminal_chicken_focus_terminal()
@@ -176,11 +155,11 @@ class Actions:
 
     def terminal_chicken_switch_to_next_terminal_instance(times: int = 1):
         """Switches the terminal chicken terminal instance to the next one from cursorless  and returns to the application"""
-        actions.user.terminal_chicken_switch_terminal_instance(actions.user.terminal_chicken_switch_to_next_terminal, times)
+        actions.user.terminal_chicken_switch_terminal_instance(actions.user.terminal_chicken_next_terminal, times)
 
     def terminal_chicken_switch_to_previous_terminal_instance(times: int = 1):
         """Switches the terminal chicken terminal instance to the previous one from cursorless and returns to the application"""
-        actions.user.terminal_chicken_switch_terminal_instance(actions.user.terminal_chicken_switch_to_previous_terminal, times)
+        actions.user.terminal_chicken_switch_terminal_instance(actions.user.terminal_chicken_last_terminal, times)
     
     def terminal_chicken_send_command_to_terminal(command: str):
         """Sends the specified command to the specified terminal program"""
